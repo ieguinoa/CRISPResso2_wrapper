@@ -1,0 +1,86 @@
+<tool id="crispresso2" name="CRISPResso2" version="0.1.0" python_template_version="3.5">
+    <requirements>
+        <requirement type="package" version="2.0.45">crispresso2</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir crispresso_out;
+        #if $singlePaired.fastq_r1.is_of_type('fastq.gz', 'fastqsanger.gz'):
+            #set $r1 = 'seq_name.fastq.gz'
+        #else:
+            #set $r1 = 'seq_name.fastq'
+        #end if
+        ln -s $singlePaired.fastq_r1 $r1;
+        mkdir -p '${html_file.files_path}' &&
+        #if str($singlePaired.sPaired) == 'paired':
+            #if $singlePaired.fastq_r2.is_of_type('fastq.gz', 'fastqsanger.gz'):
+                #set $r2 = 'seq_name.fastq.gz'
+            #else:
+                #set $r2 = 'seq_name.fastq'
+            #end if
+            ln -s $singlePaired.fastq_r2 $r2;
+        #end if
+        CRISPResso --fastq_r1 $r1
+        #if str($singlePaired.sPaired) == 'paired':
+            --fastq_r2 $r2
+        #end if
+        --amplicon_seq '$amplicon_seq' 
+        -an '$amplicon_name'
+        -n output
+        #if $sgrna_parameters.guide_name:
+            --guide_name $sgrna_parameters.guide_name
+        #end if
+        #if $sgrna_parameters.flexiguide:
+            -fg $sgrna_parameters.flexiguide
+        #end if
+        #if $sgrna_parameters.flexiguide_homology:
+            --flexiguide_homology $sgrna_parameters.flexiguide_homology
+        #end if
+        #if $sgrna_parameters.flexiguide_name:
+            --flexiguide_name '$sgrna_parameters.flexiguide_name'
+        #end if
+        #if $coding_seq:
+            --coding_seq '$coding_seq'
+        #end if
+        $sgrna_parameters.discard_guide_positions_overhanging_amplicon_edge
+        -o '${html_file.files_path}' > $output_log 
+        && cp '${html_file.files_path}'/*\.html crispresso.html
+    ]]></command>
+    <inputs>
+        <conditional name="singlePaired">
+            <param name="sPaired" type="select" label="Single-end or paired-end reads">
+                <option value="single" selected="true">Single-end</option>
+                <option value="paired">Paired-end</option>
+            </param>
+            <when value="single">
+                <param format="fastq,fastq.gz,fastqsanger.gz" name="fastq_r1" type="data" label="FASTQ file"/>
+            </when>
+            <when value="paired">
+                <param format="fastq,fastq.gz,fastqsanger.gz" name="fastq_r1" type="data" label="FASTQ file, forward reads"/>
+                <param format="fastq,fastq.gz,fastqsanger.gz" name="fastq_r2" type="data" label="FASTQ file, reverse reads"/>
+            </when>
+        </conditional>
+        <param name="amplicon_seq" type="text" label="Amplicon sequence" help="If submitting more than 1 amplicon, use commas to separate them"/>
+        <param name="amplicon_name" type="text" label="Amplicon name" help="--amplicon_name"/>
+        <param name="expected_hdr_amplicon_seq" type="text" label="Amplicon sequence expected after HDR" help="--expected_hdr_amplicon_seq"/>
+        <param argument="--coding_seq" type="text" value="" label="Subsequence/s of the amplicon sequence covering one or more coding sequences for frameshift analysis" help="--coding_seq"/>
+        <section name="sgrna_parameters" expanded="false" title="sgRNA parameters">
+            <param argument="--guide_name" type="text" label="sgRNA names" help="if more than one, please separate by commas. (default: sgRNA)"/>
+            <param argument="--flexiguide" type="text" value="" label="sgRNA sequence (flexible)" help="The flexiguide sequence will be aligned to the amplicon sequence(s), as long as the guide sequence has homology as set by --flexiguide_homology"/>
+            <param argument="--flexiguide_homology" type="text" value="" label="Flexiguide homology" help="will yield guides in amplicons with at least this homology to the flexiguide sequence (default:80 meaning 80% homology is required)"/>
+
+            <param argument="--flexiguide_name" type="text" value=""  label="Names for the flexiguides" help="Similar to --guide_name"/>
+            <param name="discard_guide_positions_overhanging_amplicon_edge" truevalue="" falsevalue="--discard_guide_positions_overhanging_amplicon_edge" type="boolean" default="False" label="Discard guide positions overhanging amplicon edge" help="If set, for guides that align to multiple positions, guide positions will be discarded if plotting around those regions would included bp that extend beyond the end of the amplicon"/>
+        </section>
+        <!--<section name="filtering_parameters" expanded="false" title="Read filtering, trimming, and merging parameters">-->
+        <!--</section>-->
+        <!--<section name="window_parameters" expanded="false" title="Quantification window parameters">-->
+        <!--</section>-->
+    </inputs>
+    <outputs>
+        <data format="txt" name="output_log" label="${tool.name} on ${on_string}: log" from_work_dir="Log.final.out"/>
+        <data name="html_file" format="html" from_work_dir="crispresso.html" label="WebPage report"/>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
