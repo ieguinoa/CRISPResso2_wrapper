@@ -42,6 +42,23 @@
             --coding_seq '$coding_seq'
         #end if
         $sgrna_parameters.discard_guide_positions_overhanging_amplicon_edge
+        $filtering_parameters.split_interleaved_input
+        #if $filtering_parameters.min_average_read_quality:
+            --min_average_read_quality $filtering_parameters.min_average_read_quality
+        #end if
+        #if $filtering_parameters.min_single_bp_quality:
+            --min_single_bp_quality $filtering_parameters.min_single_bp_quality
+        #end if
+        #if $filtering_parameters.min_bp_quality_or_N:
+            --min_bp_quality_or_N $filtering_parameters.min_bp_quality_or_N
+        #end if
+        #if $filtering_parameters.min_paired_end_reads_overlap:
+            --min_paired_end_reads_overlap $filtering_parameters.min_paired_end_reads_overlap
+        #end if
+        #if $filtering_parameters.max_paired_end_reads_overlap:
+            --max_paired_end_reads_overlap $filtering_parameters.max_paired_end_reads_overlap
+        #end if
+        $filtering_parameters.stringent_flash_merging
         -o '${html_file.files_path}' > $output_log 
         && cp '${html_file.files_path}'/*\.html crispresso.html
     ]]></command>
@@ -66,13 +83,20 @@
         <section name="sgrna_parameters" expanded="false" title="sgRNA parameters">
             <param argument="--guide_name" type="text" label="sgRNA names" help="if more than one, please separate by commas. (default: sgRNA)"/>
             <param argument="--flexiguide" type="text" value="" label="sgRNA sequence (flexible)" help="The flexiguide sequence will be aligned to the amplicon sequence(s), as long as the guide sequence has homology as set by --flexiguide_homology"/>
-            <param argument="--flexiguide_homology" type="text" value="" label="Flexiguide homology" help="will yield guides in amplicons with at least this homology to the flexiguide sequence (default:80 meaning 80% homology is required)"/>
+            <param argument="--flexiguide_homology" type="integer" value="80" label="Flexiguide homology" help="will yield guides in amplicons with at least this homology to the flexiguide sequence (default:80 meaning 80% homology is required)"/>
 
-            <param argument="--flexiguide_name" type="text" value=""  label="Names for the flexiguides" help="Similar to --guide_name"/>
+            <param argument="--flexiguide_name" type="text" value="" optional="True" label="Names for the flexiguides" help="Similar to --guide_name"/>
             <param name="discard_guide_positions_overhanging_amplicon_edge" truevalue="" falsevalue="--discard_guide_positions_overhanging_amplicon_edge" type="boolean" default="False" label="Discard guide positions overhanging amplicon edge" help="If set, for guides that align to multiple positions, guide positions will be discarded if plotting around those regions would included bp that extend beyond the end of the amplicon"/>
         </section>
-        <!--<section name="filtering_parameters" expanded="false" title="Read filtering, trimming, and merging parameters">-->
-        <!--</section>-->
+        <section name="filtering_parameters" expanded="false" title="Read filtering, trimming, and merging parameters">
+            <param name="split_interleaved_input" type="boolean" default="False" truevalue="--split_interleaved_input" falsevalue="" label="Splits a single fastq file containing paired end reads in two files before running CRISPResso"/>
+            <param argument="--min_average_read_quality" value="0" type="integer" label="Minimum average quality score (phred33) to keep a read"/>
+            <param argument="--min_single_bp_quality" type="integer" value="0" label="Minimum single bp score (phred33) to keep a read"/>
+            <param argument="--min_bp_quality_or_N" type="integer" value="0" label="Bases with a quality score (phred33) less than this value will be set to 'N'"/>
+            <param argument="--min_paired_end_reads_overlap" type="integer" value="10" label="Minimum overlap length between reads" help="Parameter for the FLASH read merging step. Minimum required overlap length between two reads to provide a confident overlap. (default: 10)" />
+            <param argument="--max_paired_end_reads_overlap" type="integer" value="100" label="Maximum overlap length between reads" help="Parameter for the FLASH merging step. Maximum overlap length expected in approximately 90% of read pairs. Please see the FLASH manual for more information. (default: 100)"/>
+            <param name="stringent_flash_merging" truevalue="--stringent_flash_merging" falsevalue="" type="boolean" default="False" label="Use stringent parameters for flash merging" help="In the case where flash could merge R1 and R2 reads ambiguously, the expected overlap is calculated as 2*average_read_length - amplicon_length. The flash parameters for --min-overlap and --max-overlap will be set to prefer merged reads with length within 10bp of the expected overlap. These values override the --min_paired_end_reads_overlap or --max_paired_end_reads_overlap CRISPResso parameters"/>
+        </section>
         <!--<section name="window_parameters" expanded="false" title="Quantification window parameters">-->
         <!--</section>-->
     </inputs>
