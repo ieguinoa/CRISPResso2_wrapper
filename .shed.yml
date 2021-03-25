@@ -1,0 +1,14 @@
+categories:
+    - Sequence Analysis
+description: |
+    CRISPResso2 is a software pipeline designed to enable rapid and intuitive interpretation of genome editing experiments
+long_description: |
+  CRISPResso2 
+  1) Aligns sequencing reads to a reference sequence
+  2) Quantifies insertions, mutations and deletions to determine whether a read is modified or unmodified by genome editing
+  3) summarizes editing results in intuitive plots and datasets
+name: crispresso2
+owner: iuc
+remote_repository_url: https://github.com/ieguinoa/CRISPResso2_wrapper
+homepage_url: https://github.com/pinellolab/CRISPResso2
+type: unrestricted
