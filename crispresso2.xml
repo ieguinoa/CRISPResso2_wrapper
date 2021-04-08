@@ -13,9 +13,9 @@
         mkdir -p '${html_file.files_path}' &&
         #if str($singlePaired.sPaired) == 'paired':
             #if $singlePaired.fastq_r2.is_of_type('fastq.gz', 'fastqsanger.gz'):
-                #set $r2 = 'seq_name.fastq.gz'
+                #set $r2 = 'seq_name2.fastq.gz'
             #else:
-                #set $r2 = 'seq_name.fastq'
+                #set $r2 = 'seq_name2.fastq'
             #end if
             ln -s $singlePaired.fastq_r2 $r2;
         #end if
@@ -26,6 +26,9 @@
         --amplicon_seq '$amplicon_seq' 
         -an '$amplicon_name'
         -n output
+        #if $sgrna_parameters.guide_seq:
+            --guide_seq $sgrna_parameters.guide_seq
+        #end if
         #if $sgrna_parameters.guide_name:
             --guide_name $sgrna_parameters.guide_name
         #end if
@@ -82,10 +85,10 @@
         <param argument="--coding_seq" type="text" value="" label="Subsequence/s of the amplicon sequence covering one or more coding sequences for frameshift analysis" help="--coding_seq"/>
         <section name="sgrna_parameters" expanded="false" title="sgRNA parameters">
             <param argument="--guide_name" type="text" label="sgRNA names" help="if more than one, please separate by commas. (default: sgRNA)"/>
+            <param argument="--guide_seq" type="text" value="" label="sgRNA sequence" help="sgRNA sequence, if more than one, please separate by commas"/>
+            <param argument="--flexiguide_name" type="text" value="" optional="True" label="Names for the flexiguides" help="Similar to --guide_name"/>
             <param argument="--flexiguide" type="text" value="" label="sgRNA sequence (flexible)" help="The flexiguide sequence will be aligned to the amplicon sequence(s), as long as the guide sequence has homology as set by --flexiguide_homology"/>
             <param argument="--flexiguide_homology" type="integer" value="80" label="Flexiguide homology" help="will yield guides in amplicons with at least this homology to the flexiguide sequence (default:80 meaning 80% homology is required)"/>
-
-            <param argument="--flexiguide_name" type="text" value="" optional="True" label="Names for the flexiguides" help="Similar to --guide_name"/>
             <param name="discard_guide_positions_overhanging_amplicon_edge" truevalue="" falsevalue="--discard_guide_positions_overhanging_amplicon_edge" type="boolean" default="False" label="Discard guide positions overhanging amplicon edge" help="If set, for guides that align to multiple positions, guide positions will be discarded if plotting around those regions would included bp that extend beyond the end of the amplicon"/>
         </section>
         <section name="filtering_parameters" expanded="false" title="Read filtering, trimming, and merging parameters">
