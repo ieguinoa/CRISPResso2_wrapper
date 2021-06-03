@@ -61,6 +61,9 @@
         #if $filtering_parameters.max_paired_end_reads_overlap:
             --max_paired_end_reads_overlap $filtering_parameters.max_paired_end_reads_overlap
         #end if
+        #if $window_parameters.cleavage_offset:
+            --cleavage_offset '$window_parameters.cleavage_offset'
+        #end if
         $filtering_parameters.stringent_flash_merging
         -o '${html_file.files_path}' > $output_log 
         && cp '${html_file.files_path}'/*\.html crispresso.html && cp '${html_file.files_path}'/CRISPResso_on_reads/CRISPResso_quantification_of_editing_frequency.txt $quant_editing_freq
@@ -100,8 +103,9 @@
             <param argument="--max_paired_end_reads_overlap" type="integer" value="100" label="Maximum overlap length between reads" help="Parameter for the FLASH merging step. Maximum overlap length expected in approximately 90% of read pairs. Please see the FLASH manual for more information. (default: 100)"/>
             <param name="stringent_flash_merging" truevalue="--stringent_flash_merging" falsevalue="" type="boolean" default="False" label="Use stringent parameters for flash merging" help="In the case where flash could merge R1 and R2 reads ambiguously, the expected overlap is calculated as 2*average_read_length - amplicon_length. The flash parameters for --min-overlap and --max-overlap will be set to prefer merged reads with length within 10bp of the expected overlap. These values override the --min_paired_end_reads_overlap or --max_paired_end_reads_overlap CRISPResso parameters"/>
         </section>
-        <!--<section name="window_parameters" expanded="false" title="Quantification window parameters">-->
-        <!--</section>-->
+        <section name="window_parameters" expanded="false" title="Quantification window parameters">
+            <param argument="cleavage_offset" type="integer" optional="True" default="-3" label="Center of quantification window to use within respect to the 3' end of the provided sgRNA sequence." help="-wc or --quantification_window_center or --cleavage_offset (default = -3)"/>
+        </section>
     </inputs>
     <outputs>
         <data format="txt" name="output_log" label="${tool.name} on ${on_string}: log" from_work_dir="Log.final.out"/>
